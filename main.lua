@@ -1,3 +1,4 @@
+-- Used to set the player to invite 
 local inviteName = ""
 
 function inviteToGuild()
