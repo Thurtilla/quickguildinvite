@@ -11,7 +11,6 @@ myframe:SetScript(
 	end
 )
 
-
 function inviteToGuild()
 	GuildInvite(inviteName)
 end
