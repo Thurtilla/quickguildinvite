@@ -1,7 +1,7 @@
 ## Interface: 11401
 ## Title: Quick Guild Invite
 ## Author: Thurtilla
-## Version: v0.2
+## Version: v0.3
 
 
 main.lua
