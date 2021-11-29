@@ -1,9 +1,8 @@
--- Used to set the player to invite
-local inviteName = ""
 local addonName = "quickguildinvite"
+local ADDON = "QuickGuildInvite: "
+local gInvIndex
 
 local myframe = CreateFrame("Frame")
-myframe:RegisterEvent("UNIT_TARGET")
 myframe:RegisterEvent("ADDON_LOADED")
 
 myframe:SetScript(
@@ -13,50 +12,63 @@ myframe:SetScript(
 	end
 )
 
+SLASH_QUICKGUILDINVITE1, SLASH_QUICKGUILDINVITE2 = "/quickguildinvite", "/qginv"
+SlashCmdList["QUICKGUILDINVITE"] = function(msg)
+	if msg == "on" then
+		print(ADDON .. "Addon will now show 'Guild invite' in context menu's. Use /qginv off to hide.")
+		quickguildinvite_enabled = true
+		toggleOnContext()
+	elseif msg == "off" then
+		print(ADDON .. "Addon is now disabled, to turn on, use /qginv on")
+		quickguildinvite_enabled = false
+		toggleOnContext()
+	else
+		print(ADDON .. "Possible commands is:")
+		print(ADDON .. "/qginv on - turns on 'Guild invite' in context menu's")
+		print(ADDON .. "/sinv off - turns off 'Guild invite' in context menu's")
+	end
+end
+
 function myframe:ADDON_LOADED(name)
 	if name ~= addonName then
 		return
 	end
-	addGuildInviteButtonToChat()
-end
-
-function inviteToGuild()
-	GuildInvite(inviteName)
-end
-
-function addGuildInviteButtonToChat()
-	if not CanGuildInvite() then
-		return
+	if quickguildinvite_enabled == nil then
+		print(ADDON .. "First load, enabling addon")
+		quickguildinvite_enabled = true
 	end
-	for i = 1, #UnitPopupMenus["FRIEND"] do
-		if UnitPopupMenus["FRIEND"][i] == "GuildInvite" then
-			return
-		end
-		if UnitPopupMenus["FRIEND"][i] == "WHISPER" then
-			tinsert(UnitPopupMenus["FRIEND"], i - 1, "GuildInvite")
-			return
-		end
+	if quickguildinvite_enabled == true then
+		toggleOnContext()
 	end
 end
 
-function myframe:UNIT_TARGET(unitid)
-	if not CanGuildInvite() then
-		return
-	end
-	inviteIndex = #UnitPopupMenus["PLAYER"] - 1
-	if unitid == "player" and UnitExists("target") then
-		if UnitFactionGroup("target") == UnitFactionGroup("player") and UnitIsPlayer("target") then
-			for i = 1, #UnitPopupMenus["PLAYER"] do
-				if UnitPopupMenus["PLAYER"][i] == "GuildInvite" then
+function toggleOnContext()
+	if quickguildinvite_enabled then
+		for k, v in pairs({"PLAYER", "FRIEND"}) do
+			local popupMenu = UnitPopupMenus[v]
+			for i = 1, #popupMenu do
+				if popupMenu[i] == "GuildInvite" then
 					break
 				end
-				if UnitPopupMenus["PLAYER"][i] == "WHISPER" then
-					tinsert(UnitPopupMenus["PLAYER"], i - 1, "GuildInvite")
-					return
+				if popupMenu[i] == "INTERACT_SUBSECTION_TITLE" and popupMenu[i + 1] ~= "GuildInvite" then
+					gInvIndex = i + 1
+					tinsert(popupMenu, gInvIndex, "GuildInvite")
+					break
 				end
 			end
 		end
+	else
+		for k, v in pairs({"PLAYER", "FRIEND"}) do
+			local popupMenu = UnitPopupMenus[v]
+			if popupMenu[gInvIndex] == "GuildInvite" then
+				tremove(popupMenu, gInvIndex)
+			end
+		end
 	end
+end
+
+function inviteToGuild(name)
+	GuildInvite(name)
 end
 
 UnitPopupButtons["GuildInvite"] = {
@@ -64,16 +76,18 @@ UnitPopupButtons["GuildInvite"] = {
 	tooltipText = "Invites the player to join your guild",
 	dist = 0,
 	func = function()
-		inviteToGuild()
+		print(ADDON .. "No player found, please try again.")
 	end
 }
 
 function Assignfunchook(dropdownMenu, which, unit, name, userData, ...)
-	inviteName = _G["DropDownList" .. "1" .. "Button" .. "1"].value
 	for i = 1, UIDROPDOWNMENU_MAXBUTTONS do
 		local button = _G["DropDownList" .. UIDROPDOWNMENU_MENU_LEVEL .. "Button" .. i]
 		if button.value == "GuildInvite" then
-			button.func = UnitPopupButtons["GuildInvite"].func
+			button.func = function()
+				inviteToGuild(dropdownMenu.name)
+			end
+			break
 		end
 	end
 end

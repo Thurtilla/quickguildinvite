@@ -1,3 +1,6 @@
+v0.4
+Cleaned up code
+
 v0.3
 Fixed an issue where the guild invite would show up multiple times in the context menu
 
