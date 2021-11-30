@@ -1,3 +1,6 @@
+v0.5
+fixed first load problems
+
 v0.4
 Cleaned up code
 
