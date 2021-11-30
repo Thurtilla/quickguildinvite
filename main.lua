@@ -1,10 +1,8 @@
 local addonName = ...
-local printPrefix = addonName..": "
-local gInvIndex
+local printPrefix = addonName .. ": "
 
 local myframe = CreateFrame("Frame")
 myframe:RegisterEvent("ADDON_LOADED")
-
 myframe:SetScript(
 	"OnEvent",
 	function(_, event, ...)
@@ -12,20 +10,34 @@ myframe:SetScript(
 	end
 )
 
-SLASH_QUICKGUILDINVITE1, SLASH_QUICKGUILDINVITE2 = "/quickguildinvite", "/qginv"
-SlashCmdList["QUICKGUILDINVITE"] = function(msg)
-	if msg == "on" then
-		print(printPrefix .. "Addon will now show 'Guild invite' in context menu's. Use /qginv off to hide.")
-		quickguildinvite_enabled = true
-		toggleOnContext()
-	elseif msg == "off" then
-		print(printPrefix .. "Addon is now disabled, to turn on, use /qginv on")
-		quickguildinvite_enabled = false
-		toggleOnContext()
+local function inviteToGuild(name)
+	GuildInvite(name)
+end
+
+local function toggleGuildOnContext()
+	if quickguildinvite_enabled then
+		for k, v in pairs({"PLAYER", "FRIEND"}) do
+			local popupMenu = UnitPopupMenus[v]
+			for i = 1, #popupMenu do
+				if popupMenu[i] == "GuildInvite" then
+					break
+				end
+				if popupMenu[i] == "INTERACT_SUBSECTION_TITLE" and popupMenu[i + 1] ~= "GuildInvite" then
+					tinsert(popupMenu, i + 1, "GuildInvite")
+					break
+				end
+			end
+		end
 	else
-		print(printPrefix .. "Possible commands is:")
-		print(printPrefix .. "/qginv on - turns on 'Guild invite' in context menu's")
-		print(printPrefix .. "/sinv off - turns off 'Guild invite' in context menu's")
+		for k, v in pairs({"PLAYER", "FRIEND"}) do
+			local popupMenu = UnitPopupMenus[v]
+			for i = 1, #popupMenu do
+				if popupMenu[i] == "GuildInvite" then
+					tremove(popupMenu, i)
+					break
+				end
+			end
+		end
 	end
 end
 
@@ -38,37 +50,25 @@ function myframe:ADDON_LOADED(name)
 		quickguildinvite_enabled = true
 	end
 	if quickguildinvite_enabled == true then
-		toggleOnContext()
+		toggleGuildOnContext()
 	end
 end
 
-function toggleOnContext()
-	if quickguildinvite_enabled then
-		for k, v in pairs({"PLAYER", "FRIEND"}) do
-			local popupMenu = UnitPopupMenus[v]
-			for i = 1, #popupMenu do
-				if popupMenu[i] == "GuildInvite" then
-					break
-				end
-				if popupMenu[i] == "INTERACT_SUBSECTION_TITLE" and popupMenu[i + 1] ~= "GuildInvite" then
-					gInvIndex = i + 1
-					tinsert(popupMenu, gInvIndex, "GuildInvite")
-					break
-				end
-			end
-		end
+SLASH_QUICKGUILDINVITE1, SLASH_QUICKGUILDINVITE2 = "/quickguildinvite", "/qginv"
+SlashCmdList["QUICKGUILDINVITE"] = function(msg)
+	if msg == "on" then
+		print(printPrefix .. "Addon will now show 'Guild invite' in context menu's. Use /qginv off to hide.")
+		quickguildinvite_enabled = true
+		toggleGuildOnContext()
+	elseif msg == "off" then
+		print(printPrefix .. "Addon is now disabled, to turn on, use /qginv on")
+		quickguildinvite_enabled = false
+		toggleGuildOnContext()
 	else
-		for k, v in pairs({"PLAYER", "FRIEND"}) do
-			local popupMenu = UnitPopupMenus[v]
-			if popupMenu[gInvIndex] == "GuildInvite" then
-				tremove(popupMenu, gInvIndex)
-			end
-		end
+		print(printPrefix .. "Possible commands is:")
+		print(printPrefix .. "/qginv on - turns on 'Guild invite' in context menu's")
+		print(printPrefix .. "/sinv off - turns off 'Guild invite' in context menu's")
 	end
-end
-
-function inviteToGuild(name)
-	GuildInvite(name)
 end
 
 UnitPopupButtons["GuildInvite"] = {
@@ -80,7 +80,7 @@ UnitPopupButtons["GuildInvite"] = {
 	end
 }
 
-function Assignfunchook(dropdownMenu, which, unit, name, userData, ...)
+local function Assignfunchook(dropdownMenu, which, unit, name, userData, ...)
 	for i = 1, UIDROPDOWNMENU_MAXBUTTONS do
 		local button = _G["DropDownList" .. UIDROPDOWNMENU_MENU_LEVEL .. "Button" .. i]
 		if button.value == "GuildInvite" then

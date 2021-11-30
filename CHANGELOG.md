@@ -1,3 +1,6 @@
+v0.6
+Quick fix to functions making them local
+
 v0.5
 fixed first load problems
 
