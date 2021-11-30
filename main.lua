@@ -1,5 +1,5 @@
-local addonName = "quickguildinvite"
-local ADDON = "QuickGuildInvite: "
+local addonName = ...
+local printPrefix = addonName..": "
 local gInvIndex
 
 local myframe = CreateFrame("Frame")
@@ -15,17 +15,17 @@ myframe:SetScript(
 SLASH_QUICKGUILDINVITE1, SLASH_QUICKGUILDINVITE2 = "/quickguildinvite", "/qginv"
 SlashCmdList["QUICKGUILDINVITE"] = function(msg)
 	if msg == "on" then
-		print(ADDON .. "Addon will now show 'Guild invite' in context menu's. Use /qginv off to hide.")
+		print(printPrefix .. "Addon will now show 'Guild invite' in context menu's. Use /qginv off to hide.")
 		quickguildinvite_enabled = true
 		toggleOnContext()
 	elseif msg == "off" then
-		print(ADDON .. "Addon is now disabled, to turn on, use /qginv on")
+		print(printPrefix .. "Addon is now disabled, to turn on, use /qginv on")
 		quickguildinvite_enabled = false
 		toggleOnContext()
 	else
-		print(ADDON .. "Possible commands is:")
-		print(ADDON .. "/qginv on - turns on 'Guild invite' in context menu's")
-		print(ADDON .. "/sinv off - turns off 'Guild invite' in context menu's")
+		print(printPrefix .. "Possible commands is:")
+		print(printPrefix .. "/qginv on - turns on 'Guild invite' in context menu's")
+		print(printPrefix .. "/sinv off - turns off 'Guild invite' in context menu's")
 	end
 end
 
@@ -34,7 +34,7 @@ function myframe:ADDON_LOADED(name)
 		return
 	end
 	if quickguildinvite_enabled == nil then
-		print(ADDON .. "First load, enabling addon")
+		print(printPrefix .. "First load, enabling addon")
 		quickguildinvite_enabled = true
 	end
 	if quickguildinvite_enabled == true then
@@ -76,7 +76,7 @@ UnitPopupButtons["GuildInvite"] = {
 	tooltipText = "Invites the player to join your guild",
 	dist = 0,
 	func = function()
-		print(ADDON .. "No player found, please try again.")
+		print(printPrefix .. "No player found, please try again.")
 	end
 }
 
