@@ -2,6 +2,6 @@
 ## Title: Quick Guild Invite
 ## Author: Thurtilla
 
-## SavedVariables: quickguildinvite_enabled
+## SavedVariables: quickguildinvite_enabled, quickguildinvite_autoinvite, quickguildinvite_popuppos
 
 main.lua

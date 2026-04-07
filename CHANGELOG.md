@@ -1,3 +1,6 @@
+v0.8
+Added auto invite (popup on whisper that includes "ginv" or "ginvite") This is moveable and toggleable with /qginv auto
+
 v0.7
 Changed to make it compatible with the new retail UI rework
 
