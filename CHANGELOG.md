@@ -1,3 +1,6 @@
+v0.7
+Changed to make it compatible with the new retail UI rework
+
 v0.6
 Quick fix to functions making them local
 
